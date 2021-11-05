@@ -3,6 +3,9 @@
 // O(n^3) reiknirit sem reiknar nákvæmt viðnám
 template<typename T>
 T calculate_resistance_exact(weighted_graph<T> &g, int x, int y) {
+    if(x == y) {
+        return T(0);
+    }
     // Til einföldunar látum við y vera stærra
     if(x > y) {
         std::swap(x, y);

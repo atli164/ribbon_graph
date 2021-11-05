@@ -7,7 +7,6 @@
 #include <cassert>
 #include <random>
 #include "base.cpp"
-#include "bigint.cpp"
 #include "fractions.cpp"
 #include "matrix.cpp"
 #include "calculate_resistance.cpp"
@@ -20,6 +19,7 @@
 #include "spantree_util.cpp"
 #include "polynomial.cpp"
 #include "poly_stats.cpp"
+#include "intx.cpp"
 
 /*
 References:
@@ -43,28 +43,23 @@ chi(k_n) = ceil((n - 3)(n - 4) / 12)
 chi(k_m,n) = ceil((m - 2)(n - 2) / 4)
 */
 
+typedef fraction<intx> frac;
+
 int main() {
     graph G(10);
     for(int i = 0; i < 5; ++i)
         for(int j = 5; j < 10; ++j)
             add_edge(G, i, j);
     ribbon_graph r = bogo_embed(G, 3);
-    int g = r.genus();
-    std::cout << g << std::endl;
     assert(r.valid());
     assert(r.smooth());
-    std::cout << "dually spanning G:\n";
-    for(int i = 0; i <= 2 * g; ++i) std::cout << i << ": " << dual_spanset_num(r, i) << std::endl;
-    std::cout << "quasi-trees G:\n";
-    for(int i = 0; i <= 2 * g; ++i) std::cout << i << ": " << quasi_num(r, i) << std::endl;
-    std::cout << "tutte poly of G:\n";
-    auto poly1 = tutte<int>(G);
-    std::cout << poly1 << std::endl;
-    std::cout << "kr poly of G:\n";
-    auto poly2 = krushkal_ribbon_poly<int>(r);
-    std::cout << poly2 << std::endl;
     ribbon_graph s = r.dual();
-    std::cout << "kr poly of G^*:\n";
-    auto poly3 = krushkal_ribbon_poly<int>(s);
-    std::cout << poly3 << std::endl;
+    graph H = s.to_graph();
+    weighted_graph<frac> Gw = unit_weights<frac>(G), Hw = unit_weights<frac>(H);
+    std::cout << calculate_resistance_exact(Gw, r.lam[0], r.lam[r.tau[0]]) << std::endl;
+    std::cout << calculate_resistance_exact(Hw, s.lam[0], s.lam[s.tau[0]]) << std::endl;
+    std::ofstream file;
+    file.open("ribbon_graphs/paper_example_4.txt");
+    write_ribbon_graph(file, r);
+    file.close();
 }

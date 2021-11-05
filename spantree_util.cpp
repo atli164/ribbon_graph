@@ -6,18 +6,18 @@ T snoob(T x) {
     return z | ((x ^ z) >> 2) / y;
 }
 
-bigint spanning_tree_num(graph& g) {
+long long spanning_tree_num(graph& g) {
     if(g.size() == 0) return 0;
     if(g.size() == 1) return 1;
     int x = 0, y = 1;
-    matrix<fraction<bigint>> laplacian(g.size(), g.size());
+    matrix<fraction<long long>> laplacian(g.size(), g.size());
     for(int i = 0; i < g.size(); ++i) {
         for(int j : g[i]) {
-            laplacian(i, j) -= fraction<bigint>(bigint(1));
+            laplacian(i, j) -= fraction<long long>(1);
         }
     }
     for(int i = 0; i < g.size(); ++i) {
-        fraction<bigint> sm(bigint(0));
+        fraction<long long> sm(0);
         for(int j = 0; j < g.size(); ++j) {
             if(i == j) {
                 continue;
@@ -26,13 +26,13 @@ bigint spanning_tree_num(graph& g) {
         }
         laplacian(i, i) = sm;
     }
-    matrix<fraction<bigint>> cof11(g.size() - 1, g.size() - 1);
+    matrix<fraction<long long>> cof11(g.size() - 1, g.size() - 1);
     for(int i = 1; i < g.size(); ++i) {
         for(int j = 1; j < g.size(); ++j) {
             cof11(i - 1, j - 1) = laplacian(i, j);
         }
     }
-    fraction<bigint> det11;
+    fraction<long long> det11;
     int r11;
     cof11.rref(det11, r11);
     assert(det11.q == 1);
