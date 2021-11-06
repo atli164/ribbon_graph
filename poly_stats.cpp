@@ -107,3 +107,30 @@ polynom<4, T> krushkal_ribbon_poly(ribbon_graph& r) {
     }
     return res;
 }
+
+template <typename T>
+polynom<4, T> krushkal_weighted(weighted_ribbon_graph<T>& w) {
+    std::vector<int> edg = w.r.edge_list();
+    std::vector<T> weights;
+    for(int i : edg) weights.push_back(w.ohm[i]);
+    weighted_ribbon_graph<T> v = w.dual();
+    int rk = w.r.components(), sk = v.r.components(), g = v.r.genus();
+    polynom<4, T> res;
+    for(long long msk = 0; msk < (1LL << edg.size()); ++msk) {
+        std::vector<int> keep, dualkeep;
+        T x = T(1);
+        for(int i = 0; i < w.r.edges(); ++i) {
+            if(msk & (1LL << i)) {
+                keep.push_back(edg[i]);
+                x /= weights[i];
+            } else {
+                dualkeep.push_back(edg[i]);
+            }
+        }
+        ribbon_graph h = w.r.span_subgraph(keep);
+        ribbon_graph hd = v.r.span_subgraph(dualkeep);
+        assert(h.nullity() == hd.components() - sk + g + h.genus() - hd.genus());
+        res[h.components() - rk][hd.components() - sk][h.genus()][hd.genus()] += x;
+    }
+    return res;
+}
